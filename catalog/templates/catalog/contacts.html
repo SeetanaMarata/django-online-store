@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - Интернет-магазин</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'catalog:home' %}">🛍️ Онлайн-магазин</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="{% url 'catalog:home' %}">Главная</a>
+                <a class="nav-link active" href="{% url 'catalog:contacts' %}">Контакты</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Главный контент -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="text-center mb-4">📞 Свяжитесь с нами</h1>
+
+                <!-- Сообщение об успешной отправке -->
+                {% if success %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ✅ Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <!-- Контактная информация -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">📞 Наши контакты</h5>
+                                <p><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+                                <p><strong>Email:</strong> info@onlinestore.ru</p>
+                                <p><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 123</p>
+                                <p><strong>Время работы:</strong> Пн-Пт: 9:00-18:00</p>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">🚚 Доставка</h5>
+                                <p>Бесплатная доставка при заказе от 3000 ₽</p>
+                                <p>Доставка по всей России</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Форма обратной связи -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">✉️ Форма обратной связи</h5>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Ваше имя</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Телефон</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="message" class="form-label">Сообщение</label>
+                                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Отправить сообщение</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2024 Онлайн-магазин. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
