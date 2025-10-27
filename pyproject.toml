@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "django-online-store"
+version = "0.1.0"
+description = ""
+authors = ["Swetlana Mirzoeva <levka008@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+django = "^5.2.7"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.9.0"
+isort = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
