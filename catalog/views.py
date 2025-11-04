@@ -1,32 +1,61 @@
-from django.shortcuts import render
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Product
+from .forms import ProductForm
+from .models import Contact, Product
+
+
+def add_product(request):
+    """Контроллер формы добавления товара"""
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")  # Перенаправляем на главную после успеха
+    else:
+        form = ProductForm()
+
+    return render(request, "catalog/add_product.html", {"form": form})
+
+
+def product_detail(request, pk):
+    """Контроллер страницы одного товара"""
+    product = get_object_or_404(Product, pk=pk)
+
+    context = {
+        "product": product,
+    }
+    return render(request, "catalog/product_detail.html", context)
 
 
 def home(request):
-    """Контроллер главной страницы"""
-    # Получаем последние 5 продуктов
-    latest_products = Product.objects.all().order_by("-created_at")[:5]
+    """Контроллер главной страницы с пагинацией"""
+    # Получаем ВСЕ продукты и сортируем по дате создания
+    all_products = Product.objects.all().order_by("-created_at")
 
-    # Выводим в консоль (для проверки)
-    print("🎯 Последние 5 продуктов:")
-    for product in latest_products:
-        print(f"  - {product.name} ({product.price} руб.)")
+    # Создаем пагинатор - 6 товаров на страницу
+    paginator = Paginator(all_products, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # Сокращаем описание для карточек
+    for product in page_obj:
+        if product.description and len(product.description) > 100:
+            product.short_description = product.description[:100] + "..."
+        else:
+            product.short_description = product.description or "Описание отсутствует"
 
     context = {
-        "latest_products": latest_products,
+        "page_obj": page_obj,  # 📍 МЕНЯЕМ latest_products на page_obj
     }
     return render(request, "catalog/home.html", context)
 
 
 def contacts(request):
     """Контроллер страницы контактов"""
-    if request.method == "POST":
-        # Обработка формы (пока просто сообщение)
-        name = request.POST.get("name")
-        phone = request.POST.get("phone")
-        message = request.POST.get("message")
-        print(f"Новое сообщение от {name}, телефон: {phone}, сообщение: {message}")
-        return render(request, "catalog/contacts.html", {"success": True})
+    contact_info = Contact.objects.first()  # Берем первую запись
 
-    return render(request, "catalog/contacts.html")
+    context = {
+        "contact": contact_info,
+    }
+    return render(request, "catalog/contacts.html", context)
