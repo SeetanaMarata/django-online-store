@@ -1,9 +1,22 @@
 from django.shortcuts import render
 
+from .models import Product
+
 
 def home(request):
     """Контроллер главной страницы"""
-    return render(request, "catalog/home.html")
+    # Получаем последние 5 продуктов
+    latest_products = Product.objects.all().order_by("-created_at")[:5]
+
+    # Выводим в консоль (для проверки)
+    print("🎯 Последние 5 продуктов:")
+    for product in latest_products:
+        print(f"  - {product.name} ({product.price} руб.)")
+
+    context = {
+        "latest_products": latest_products,
+    }
+    return render(request, "catalog/home.html", context)
 
 
 def contacts(request):

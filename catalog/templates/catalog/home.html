@@ -65,3 +65,28 @@
     </footer>
 </body>
 </html>
+
+<!-- Последние продукты -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">🆕 Новые поступления</h2>
+        <div class="row">
+            {% for product in latest_products %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description|truncatewords:10 }}</p>
+                        <p class="text-primary fw-bold">{{ product.price }} руб.</p>
+                        <small class="text-muted">Категория: {{ product.category.name }}</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>Пока нет товаров</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
