@@ -45,19 +45,43 @@
 
 git clone <url-репозитория>
 cd django_online_store
-Настройка окружения
-bash
+
  Установка зависимостей
 poetry install
 
  Активация виртуального окружения
 poetry shell
 
- Настройка переменных окружения
-cp .env.example .env
- Отредактируйте .env файл с вашими настройками БД
+## 🔐 Настройка окружения
+
+1. Скопируйте файл окружения:
+
+ .env.example .env
+Отредактируйте .env файл с вашими реальными настройками:
+
+DB_NAME - имя базы данных PostgreSQL
+
+DB_USER - пользователь базы данных
+
+DB_PASSWORD - пароль пользователя
+
+DB_HOST - хост базы данных (обычно localhost)
+
+DB_PORT - порт (обычно 5432)
+
+SECRET_KEY - секретный ключ Django (сгенерируйте случайный)
+
+
+## 🎯 ПРОВЕРКА:
+
+
+### Проверим что .env не отслеживается
+git status
+
+ Должно показать что .env не в списке изменений
+ Но .env.example должен быть отслеживаемым  
 Настройка базы данных
-bash
+
  Создание и применение миграций
 python manage.py migrate
 
@@ -65,9 +89,9 @@ python manage.py migrate
 python manage.py createsuperuser
 
  Загрузка тестовых данных
-python manage.py create_test_data
+python manage.py create_test_data   
 Запуск сервера
-bash
+
 python manage.py runserver
 Доступ к приложению
 Главная страница: http://127.0.0.1:8000/
