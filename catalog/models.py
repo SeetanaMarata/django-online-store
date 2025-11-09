@@ -45,3 +45,21 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.price} руб."
+
+
+class Contact(models.Model):
+    """Модель контактных данных магазина"""
+
+    name = models.CharField(max_length=100, verbose_name="Название магазина")
+    phone = models.CharField(max_length=20, verbose_name="Телефон")
+    email = models.EmailField(verbose_name="Email")
+    address = models.TextField(verbose_name="Адрес")
+    working_hours = models.TextField(verbose_name="Режим работы")
+    description = models.TextField(verbose_name="Описание магазина", blank=True)
+
+    class Meta:
+        verbose_name = "Контакт"
+        verbose_name_plural = "Контакты"
+
+    def __str__(self):
+        return self.name

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product
+from .models import Category, Contact, Product
 
 
 @admin.register(Category)
@@ -22,7 +22,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")  # Поиск по названию и описанию
     list_per_page = 20  # Количество элементов на странице
 
-    # Поля которые показываются при редактировании
+    # Поля, которые показываются при редактировании
     fieldsets = (
         (
             "Основная информация",
@@ -34,3 +34,14 @@ class ProductAdmin(admin.ModelAdmin):
 
     # Поля только для чтения
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    """Админ-панель для контактов"""
+
+    list_display = ("name", "phone", "email")
+
+    # Ограничиваем создание только одной записи
+    def has_add_permission(self, request):
+        return not Contact.objects.exists()
