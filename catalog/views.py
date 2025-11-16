@@ -1,61 +1,59 @@
-from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
 
 from .forms import ProductForm
 from .models import Contact, Product
 
 
-def add_product(request):
-    """Контроллер формы добавления товара"""
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect("home")  # Перенаправляем на главную после успеха
-    else:
-        form = ProductForm()
+class HomeView(ListView):
+    """CBV для главной страницы с товарами"""
 
-    return render(request, "catalog/add_product.html", {"form": form})
+    model = Product
+    template_name = "catalog/home.html"
+    context_object_name = "page_obj"
+    paginate_by = 6
 
+    def get_queryset(self):
+        return Product.objects.all().order_by("-created_at")
 
-def product_detail(request, pk):
-    """Контроллер страницы одного товара"""
-    product = get_object_or_404(Product, pk=pk)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    context = {
-        "product": product,
-    }
-    return render(request, "catalog/product_detail.html", context)
+        # Сокращаем описание для карточек
+        for product in context["page_obj"]:
+            if product.description and len(product.description) > 100:
+                product.short_description = product.description[:100] + "..."
+            else:
+                product.short_description = (
+                    product.description or "Описание отсутствует"
+                )
 
-
-def home(request):
-    """Контроллер главной страницы с пагинацией"""
-    # Получаем ВСЕ продукты и сортируем по дате создания
-    all_products = Product.objects.all().order_by("-created_at")
-
-    # Создаем пагинатор - 6 товаров на страницу
-    paginator = Paginator(all_products, 6)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    # Сокращаем описание для карточек
-    for product in page_obj:
-        if product.description and len(product.description) > 100:
-            product.short_description = product.description[:100] + "..."
-        else:
-            product.short_description = product.description or "Описание отсутствует"
-
-    context = {
-        "page_obj": page_obj,  # 📍 МЕНЯЕМ latest_products на page_obj
-    }
-    return render(request, "catalog/home.html", context)
+        return context
 
 
-def contacts(request):
-    """Контроллер страницы контактов"""
-    contact_info = Contact.objects.first()  # Берем первую запись
+class ProductDetailView(DetailView):
+    """CBV для страницы одного товара"""
 
-    context = {
-        "contact": contact_info,
-    }
-    return render(request, "catalog/contacts.html", context)
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
+
+
+class ContactsView(TemplateView):
+    """CBV для страницы контактов"""
+
+    template_name = "catalog/contacts.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contact"] = Contact.objects.first()
+        return context
+
+
+class ProductCreateView(CreateView):
+    """CBV для формы добавления товара"""
+
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/add_product.html"
+    success_url = reverse_lazy("home")
