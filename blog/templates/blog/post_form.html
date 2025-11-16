@@ -1,0 +1,88 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}
+    {% if object %}Редактирование статьи{% else %}Создание статьи{% endif %} - Блог
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        {% if object %}
+                            ✏️ Редактирование статьи
+                        {% else %}
+                            📝 Создание новой статьи
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Поле заголовка -->
+                        <div class="mb-3">
+                            <label class="form-label">Заголовок</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">
+                                    {{ form.title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле содержимого -->
+                        <div class="mb-3">
+                            <label class="form-label">Содержимое</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger small">
+                                    {{ form.content.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле превью -->
+                        <div class="mb-3">
+                            <label class="form-label">Превью (изображение)</label>
+                            {{ form.preview }}
+                            <div class="form-text">Необязательное поле</div>
+                            {% if form.preview.errors %}
+                                <div class="text-danger small">
+                                    {{ form.preview.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле публикации -->
+                        <div class="mb-3 form-check">
+                            {{ form.is_published }}
+                            <label class="form-check-label">Опубликовано</label>
+                            {% if form.is_published.errors %}
+                                <div class="text-danger small">
+                                    {{ form.is_published.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                {% if object %}
+                                    💾 Сохранить изменения
+                                {% else %}
+                                    ✅ Создать статью
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'blog:post_list' %}" class="btn btn-outline-secondary">
+                                ← Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
