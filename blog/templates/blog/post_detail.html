@@ -1,0 +1,46 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ post.title }} - Блог{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog:post_list' %}">Блог</a></li>
+            <li class="breadcrumb-item active">{{ post.title }}</li>
+        </ol>
+    </nav>
+
+    <article class="blog-post">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-5 mb-3">{{ post.title }}</h1>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-muted">
+                        <small>📅 {{ post.created_at|date:"d.m.Y H:i" }}</small>
+                        <small class="ms-3">👁️ {{ post.views_count }} просмотров</small>
+                    </div>
+                    <div>
+                        <a href="{% url 'blog:post_edit' post.pk %}" class="btn btn-outline-secondary btn-sm">✏️ Редактировать</a>
+                        <a href="{% url 'blog:post_delete' post.pk %}" class="btn btn-outline-danger btn-sm">🗑️ Удалить</a>
+                    </div>
+                </div>
+
+                {% if post.preview %}
+                    <img src="{{ post.preview.url }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+                {% endif %}
+
+                <div class="blog-content">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                <div class="mt-5">
+                    <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary">← Назад к списку статей</a>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>
+{% endblock %}

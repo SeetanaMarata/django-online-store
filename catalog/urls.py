@@ -1,10 +1,12 @@
 from django.urls import path
 
-from . import views
+from .views import ContactsView, HomeView, ProductCreateView, ProductDetailView
 
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("contacts/", views.contacts, name="contacts"),
-    path("product/<int:pk>/", views.product_detail, name="product_detail"),
-    path("add-product/", views.add_product, name="add_product"),  # 📍 НОВЫЙ МАРШРУТ
+    path("", HomeView.as_view(), name="home"),
+    path("contacts/", ContactsView.as_view(), name="contacts"),
+    path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
+    path(
+        "add-product/", ProductCreateView.as_view(), name="add_product"
+    ),  # 📍 ИМЯ: add_product
 ]
