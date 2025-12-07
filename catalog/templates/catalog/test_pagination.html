@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест пагинации</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">🛍️ Магазин</a>
+            <a href="/" class="btn btn-outline-light">На главную</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">🔧 ТЕСТ ПАГИНАЦИИ</h1>
+
+        <!-- Информация -->
+        <div class="alert alert-info">
+            <h4><i class="bi bi-info-circle"></i> Информация о пагинации:</h4>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Всего товаров:</th>
+                            <td class="text-end"><strong>{{ page_obj.paginator.count }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Всего страниц:</th>
+                            <td class="text-end"><strong>{{ page_obj.paginator.num_pages }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Текущая страница:</th>
+                            <td class="text-end"><strong>{{ page_obj.number }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Товаров на странице:</th>
+                            <td class="text-end"><strong>{{ page_obj|length }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>has_other_pages:</th>
+                            <td class="text-end">
+                                {% if page_obj.has_other_pages %}
+                                    <span class="badge bg-success">TRUE ✅</span>
+                                {% else %}
+                                    <span class="badge bg-danger">FALSE ❌</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>has_next:</th>
+                            <td class="text-end">
+                                {% if page_obj.has_next %}
+                                    <span class="badge bg-success">TRUE ✅</span>
+                                {% else %}
+                                    <span class="badge bg-danger">FALSE ❌</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>has_previous:</th>
+                            <td class="text-end">
+                                {% if page_obj.has_previous %}
+                                    <span class="badge bg-success">TRUE ✅</span>
+                                {% else %}
+                                    <span class="badge bg-danger">FALSE ❌</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Товары на странице -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-box"></i> Товары на этой странице ({{ page_obj|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="row">
+                        {% for product in page_obj %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>{{ product.name }}</h6>
+                                    <p class="text-muted small">{{ product.description|truncatewords:10 }}</p>
+                                    <p class="text-success fw-bold">{{ product.price }} руб.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">Нет товаров</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Пагинация - ТЕСТ -->
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-gear"></i> Пагинация (тест)</h5>
+            </div>
+            <div class="card-body">
+                <!-- Всегда показываем, не зависимо от has_other_pages -->
+                <h6>Навигация:</h6>
+                <div class="btn-group mb-3">
+                    <a href="?page=1"
+                       class="btn btn-outline-primary {% if page_obj.number == 1 %}disabled{% endif %}">
+                        Первая
+                    </a>
+
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary">
+                            ← Назад
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary" disabled>← Назад</button>
+                    {% endif %}
+
+                    <button class="btn btn-primary" disabled>
+                        Страница {{ page_obj.number }}
+                    </button>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary">
+                            Вперед →
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary" disabled>Вперед →</button>
+                    {% endif %}
+
+                    <a href="?page={{ page_obj.paginator.num_pages }}"
+                       class="btn btn-outline-primary {% if page_obj.number == page_obj.paginator.num_pages %}disabled{% endif %}">
+                        Последняя
+                    </a>
+                </div>
+
+                <!-- Все номера страниц -->
+                <h6>Все страницы:</h6>
+                <div class="mb-3">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="badge bg-primary p-2 mx-1">{{ num }}</span>
+                        {% else %}
+                            <a href="?page={{ num }}" class="badge bg-secondary text-decoration-none p-2 mx-1">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Ссылки для теста -->
+                <h6>Быстрые ссылки:</h6>
+                <div>
+                    <a href="/" class="btn btn-success me-2">На главную</a>
+                    <a href="/test-pagination/" class="btn btn-info me-2">Тест (страница 1)</a>
+                    <a href="/test-pagination/?page=2" class="btn btn-info">Тест (страница 2)</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Отладка -->
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-bug"></i> Отладка</h5>
+            </div>
+            <div class="card-body">
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+page_obj: {{ page_obj }}
+paginator: {{ page_obj.paginator }}
+object_list count: {{ page_obj.object_list|length }}
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p>Тест пагинации | Всего товаров: {{ page_obj.paginator.count }}</p>
+        </div>
+    </footer>
+</body>
+</html>
