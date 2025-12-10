@@ -1,46 +1,64 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.views.generic import (CreateView, DeleteView, DetailView,
+                                  TemplateView, UpdateView)
 
 from .forms import ProductForm
 from .models import Contact, Product
 
 
-class HomeView(ListView):
-    """CBV для главной страницы с товарами"""
+# ========== ГЛАВНАЯ СТРАНИЦА (ФУНКЦИЯ!) ==========
+def home(request):
+    """Главная страница с товарами и пагинацией"""
+    # Получаем ВСЕ товары, сортируем по дате (новые сначала)
+    all_products = Product.objects.all().order_by("-created_at")
 
-    model = Product
-    template_name = "catalog/home.html"
-    context_object_name = "page_obj"
-    paginate_by = 6
+    # Создаем пагинатор: 6 товаров на страницу
+    paginator = Paginator(all_products, 6)
 
-    def get_queryset(self):
-        return Product.objects.all().order_by("-created_at")
+    # Получаем номер страницы из GET-параметра
+    page_number = request.GET.get("page")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    try:
+        # Получаем объект страницы
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # Если page не число, показываем первую страницу
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # Если страница вне диапазона, показываем последнюю
+        page_obj = paginator.page(paginator.num_pages)
 
-        # Сокращаем описание для карточек
-        for product in context["page_obj"]:
-            if product.description and len(product.description) > 100:
-                product.short_description = product.description[:100] + "..."
-            else:
-                product.short_description = (
-                    product.description or "Описание отсутствует"
-                )
+    # Добавляем короткое описание для каждого товара
+    for product in page_obj:
+        if product.description and len(product.description) > 100:
+            product.short_description = product.description[:100] + "..."
+        else:
+            product.short_description = product.description or "Описание отсутствует"
 
-        return context
+    # Подготавливаем контекст
+    context = {
+        "page_obj": page_obj,
+        "products": page_obj,  # дублируем для совместимости
+    }
+
+    return render(request, "catalog/home.html", context)
 
 
+# ========== СТРАНИЦА ТОВАРА (CBV) ==========
 class ProductDetailView(DetailView):
-    """CBV для страницы одного товара"""
+    """Страница одного товара"""
 
     model = Product
     template_name = "catalog/product_detail.html"
     context_object_name = "product"
 
 
+# ========== СТРАНИЦА КОНТАКТОВ (CBV) ==========
 class ContactsView(TemplateView):
-    """CBV для страницы контактов"""
+    """Страница контактов"""
 
     template_name = "catalog/contacts.html"
 
@@ -50,10 +68,49 @@ class ContactsView(TemplateView):
         return context
 
 
-class ProductCreateView(CreateView):
-    """CBV для формы добавления товара"""
+# ========== СОЗДАНИЕ ТОВАРА (CBV) ==========
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    """Создание нового товара"""
 
     model = Product
     form_class = ProductForm
-    template_name = "catalog/add_product.html"
+    template_name = "catalog/product_form.html"
     success_url = reverse_lazy("home")
+    login_url = "/admin/login/"
+
+
+# ========== РЕДАКТИРОВАНИЕ ТОВАРА (CBV) ==========
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    """Редактирование товара"""
+
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("product_detail", kwargs={"pk": self.object.pk})
+
+
+# ========== УДАЛЕНИЕ ТОВАРА (CBV) ==========
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление товара"""
+
+    model = Product
+    template_name = "catalog/product_confirm_delete.html"
+    success_url = reverse_lazy("home")
+    login_url = "/admin/login/"
+
+
+# ========== ТЕСТОВАЯ СТРАНИЦА ПАГИНАЦИИ ==========
+def test_pagination(request):
+    """Тестовая страница для отладки пагинации"""
+    all_products = Product.objects.all().order_by("-created_at")
+    paginator = Paginator(all_products, 6)
+    page_number = request.GET.get("page", 1)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except (PageNotAnInteger, EmptyPage):
+        page_obj = paginator.page(1)
+
+    return render(request, "catalog/test_pagination.html", {"page_obj": page_obj})

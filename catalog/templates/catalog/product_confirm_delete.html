@@ -1,0 +1,54 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удаление товара - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-lg">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0">🗑️ Подтверждение удаления</h4>
+                </div>
+
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <h5 class="card-title">Вы уверены, что хотите удалить товар?</h5>
+                    <p class="card-text">
+                        <strong>"{{ object.name }}"</strong>
+                    </p>
+
+                    {% if object.image %}
+                    <div class="my-3">
+                        <img src="{{ object.image.url }}"
+                             alt="{{ object.name }}"
+                             class="img-thumbnail"
+                             style="max-height: 150px;">
+                    </div>
+                    {% endif %}
+
+                    <div class="alert alert-warning" role="alert">
+                        ⚠️ Это действие нельзя отменить! Товар будет удален навсегда.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                ✅ Да, удалить навсегда
+                            </button>
+                            <a href="{% url 'product_detail' object.pk %}"
+                               class="btn btn-outline-secondary">
+                                ❌ Отмена, вернуться к товару
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -48,9 +48,23 @@
             </div>
         </div>
         
+        <!-- БЛОК КНОПОК -->
         <div class="mt-4">
-            <button class="btn btn-primary btn-lg">Добавить в корзину</button>
-            <a href="/" class="btn btn-outline-secondary">Назад к каталогу</a>
+            <div class="btn-group w-100" role="group">
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning">
+                        ✏️ Редактировать
+                    </a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">
+                        🗑️ Удалить
+                    </a>
+                {% else %}
+                    <button class="btn btn-primary">🛒 Добавить в корзину</button>
+                {% endif %}
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                    ← Назад
+                </a>
+            </div>
         </div>
     </div>
 </div>

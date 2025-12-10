@@ -1,12 +1,23 @@
 from django.urls import path
 
-from .views import ContactsView, HomeView, ProductCreateView, ProductDetailView
+from . import views  # Импортируем ВСЕ функции из views
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
-    path("contacts/", ContactsView.as_view(), name="contacts"),
-    path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
+    # Главная страница - используем ФУНКЦИЮ views.home
+    path("", views.home, name="home"),
+    # Контакты
+    path("contacts/", views.ContactsView.as_view(), name="contacts"),
+    # Товары - CRUD
+    path("product/<int:pk>/", views.ProductDetailView.as_view(), name="product_detail"),
+    path("product/create/", views.ProductCreateView.as_view(), name="product_create"),
     path(
-        "add-product/", ProductCreateView.as_view(), name="add_product"
-    ),  # 📍 ИМЯ: add_product
+        "product/<int:pk>/edit/", views.ProductUpdateView.as_view(), name="product_edit"
+    ),
+    path(
+        "product/<int:pk>/delete/",
+        views.ProductDeleteView.as_view(),
+        name="product_delete",
+    ),
+    # Тестовая страница пагинации
+    path("test-pagination/", views.test_pagination, name="test_pagination"),
 ]
