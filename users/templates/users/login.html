@@ -1,0 +1,97 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Login - Online Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Welcome Back! 🔐</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Email address *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label class="form-label">Password *</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="text-end">
+                                <small>
+                                    <a href="#" class="text-decoration-none">
+                                        Forgot password?
+                                    </a>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Log In →
+                            </button>
+                            <a href="{% url 'users:register' %}" class="btn btn-outline-success">
+                                New user? Create an account
+                            </a>
+                            <a href="{% url 'home' %}" class="btn btn-link">
+                                ← Back to home
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small class="text-muted">
+                        Demo credentials: test@example.com / testpass123
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+    
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+</style>
+{% endblock %}

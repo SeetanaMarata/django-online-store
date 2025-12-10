@@ -1,0 +1,109 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Registration - Online Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Create an Account 📝</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Email address *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                We will use this email for authorization and notifications
+                            </div>
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Minimum 8 characters, include letters and numbers
+                            </div>
+                        </div>
+                        
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            <label class="form-label">Confirm Password *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Register ✅
+                            </button>
+                            <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">
+                                Already have an account? Log in
+                            </a>
+                            <a href="{% url 'home' %}" class="btn btn-link">
+                                ← Back to home
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small class="text-muted">
+                        By registering, you agree to our Terms of Service and Privacy Policy
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+    
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        border: none;
+    }
+</style>
+{% endblock %}
