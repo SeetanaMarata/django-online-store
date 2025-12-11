@@ -1,23 +1,54 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">🛍️ Магазин</a>
+        <a class="navbar-brand" href="{% url 'home' %}">🛍️ Store</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">🏠 Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'product_create' %}">➕ Add Product</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'blog:post_list' %}">📝 Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contacts' %}">📞 Contacts</a>
+                </li>
+            </ul>
+
             <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+<!-- Авторизованный пользователь -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+        👤 {{ user.email|truncatechars:20 }}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'users:profile' %}">⚙️ Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+                    🚪 Logout
+                </button>
+            </form>
+        </li>
+    </ul>
+</li>
+{% else %}
+                <!-- Неавторизованный пользователь -->
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">🏠 Главная</a>
+                    <a class="nav-link" href="{% url 'users:login' %}">🔐 Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'product_create' %}">➕ Добавить товар</a>
+                    <a class="nav-link" href="{% url 'users:register' %}">📝 Register</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'blog:post_list' %}">📝 Блог</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'contacts' %}">📞 Контакты</a>
-                </li>
+                {% endif %}
             </ul>
         </div>
     </div>

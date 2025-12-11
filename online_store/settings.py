@@ -134,16 +134,16 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # ========== КАСТОМНАЯ МОДЕЛЬ ПОЛЬЗОВАТЕЛЯ ==========
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 # ========== НАСТРОЙКИ АУТЕНТИФИКАЦИИ ==========
-LOGIN_URL = '/users/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = "/users/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # ========== EMAIL НАСТРОЙКИ (для разработки) ==========
 # Для разработки - письма выводятся в консоль
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Для продакшена раскомментируй:
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.yandex.ru'
@@ -154,13 +154,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # DEFAULT_FROM_EMAIL = 'your-email@yandex.ru'
 
 # ========== СТАТИЧЕСКИЕ ФАЙЛЫ ==========
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 # ========== ЛОКАЛИЗАЦИЯ ==========
-LANGUAGE_CODE = 'ru-ru'  # или 'en-us'
-TIME_ZONE = 'Europe/Moscow'
+LANGUAGE_CODE = "ru-ru"  # или 'en-us'
+TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
