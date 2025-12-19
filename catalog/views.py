@@ -69,36 +69,31 @@ class ContactsView(TemplateView):
 
 
 # ========== СОЗДАНИЕ ТОВАРА (CBV) ==========
-class ProductCreateView(LoginRequiredMixin, CreateView):
-    """Создание нового товара"""
-
+class ProductCreateView(
+    LoginRequiredMixin, CreateView
+):  # 📍 LoginRequiredMixin ПЕРВЫЙ!
     model = Product
     form_class = ProductForm
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("home")
-    login_url = "/admin/login/"
+    login_url = "/users/login/"  # 📍 Важно указать куда перенаправлять
 
 
-# ========== РЕДАКТИРОВАНИЕ ТОВАРА (CBV) ==========
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
-    """Редактирование товара"""
-
     model = Product
     form_class = ProductForm
     template_name = "catalog/product_form.html"
+    login_url = "/users/login/"
 
     def get_success_url(self):
         return reverse_lazy("product_detail", kwargs={"pk": self.object.pk})
 
 
-# ========== УДАЛЕНИЕ ТОВАРА (CBV) ==========
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
-    """Удаление товара"""
-
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("home")
-    login_url = "/admin/login/"
+    login_url = "/users/login/"
 
 
 # ========== ТЕСТОВАЯ СТРАНИЦА ПАГИНАЦИИ ==========
