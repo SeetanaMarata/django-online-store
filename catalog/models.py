@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -37,11 +39,31 @@ class Product(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Дата последнего изменения"
     )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликован",
+        help_text="Товар будет виден на сайте только если отмечен",
+    )
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Ссылаемся на кастомную модель пользователя
+        on_delete=models.SET_NULL,
+        verbose_name="Владелец",
+        blank=True,
+        null=True,
+        related_name="products",
+    )
 
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
         ordering = ["-created_at"]
+        # ДОБАВЬТЕ разрешения:
+        permissions = [
+            ("can_unpublish_product", "Может отменять публикацию продукта"),
+            ("can_change_description", "Может изменять описание продукта"),
+            ("can_change_category", "Может изменять категорию продукта"),
+        ]
 
     def __str__(self):
         return f"{self.name} - {self.price} руб."
