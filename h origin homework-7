@@ -1,0 +1,72 @@
+* [33m492071d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mhomework-7[m[33m)[m 🧪 Добавление всех тестовых скриптов и финальных правок
+* [33m114d657[m ⚙️ Обновление настроек: пути к шаблонам
+* [33m1fe18f0[m 👥 Настройка системы групп: модераторы, контент-менеджеры
+* [33m8f0b89a[m 🎨 Обновление шаблонов: кнопки модерации, навигация
+* [33m66d99c6[m 🛡️ Реализация системы модерации: ProductPublishView, ProductUnpublishView
+* [33m747a698[m 🏗️ Добавление полей is_published и owner в модель Product
+* [33me0d87d4[m 📚 Обновление документации: добавлен раздел системы модерации
+*   [33mcd72097[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m Merge pull request #6 from SeetanaMarata/homework-6
+[32m|[m[33m\[m  
+[32m|[m * [33m70c632c[m[33m ([m[1;31morigin/homework-6[m[33m)[m feat: add users app with custom User model - custom User model with email auth, additional fields (avatar, phone, country), updated AUTH_USER_MODEL
+[32m|[m * [33m7c1448f[m feat: add users app with custom User model - custom User model with email auth, additional fields (avatar, phone, country), updated AUTH_USER_MODEL
+[32m|[m[32m/[m  
+*   [33m3d86635[m Merge pull request #5 from SeetanaMarata/homework-5
+[34m|[m[35m\[m  
+[34m|[m * [33ma9ef34c[m[33m ([m[1;31morigin/homework-5[m[33m)[m git commit -m "docs: add form validation screenshot"
+[34m|[m * [33ma733319[m added some details
+[34m|[m * [33md657a79[m style: improve CSS styling - enhanced forms, animations, responsive design
+[34m|[m * [33mf9951b0[m docs: update README with complete project documentation - features, setup, architecture
+[34m|[m * [33m8208884[m feat: update navigation menu - added product creation link, improved styling
+[34m|[m * [33ma538c96[m feat: add pagination test page for debugging and troubleshooting
+[34m|[m * [33m06c69f2[m feat: implement pagination on homepage - 6 products per page with navigation
+[34m|[m * [33mc86c846[m feat: create templates for product forms - styled forms with Bootstrap, added confirmation dialog
+[34m|[m * [33m24f3e27[m feat: implement CRUD operations for products - create, update, delete views with authentication
+[34m|[m * [33mde45541[m feat: add ProductForm with custom validation
+[34m|[m[34m/[m  
+*   [33m1991948[m Merge pull request #4 from SeetanaMarata/homework-4
+[36m|[m[1;31m\[m  
+[36m|[m * [33m35f71cd[m[33m ([m[1;31morigin/homework-4[m[33m)[m added some details
+[36m|[m * [33m5f8caff[m docs: update README with blog features and technical details
+[36m|[m * [33md3731a8[m feat: add management command for blog testing
+[36m|[m * [33m6453c05[m feat: implement email notifications for popular articles
+[36m|[m * [33ma243d3f[m feat: configure Django admin for blog management
+[36m|[m * [33m0edacb5[m feat: integrate blog into main navigation
+[36m|[m * [33m80566a9[m feat: create comprehensive blog templates with base inheritance
+[36m|[m * [33m312014e[m feat: configure URL routing for blog application
+[36m|[m * [33md173ac0[m feat: implement full CRUD for blog using Class-Based Views
+[36m|[m * [33ma916d94[m build: generate database migrations for blog
+[36m|[m * [33mb2d047d[m feat: implement BlogPost model with comprehensive fields
+[36m|[m * [33m835cbfa[m feat: create new blog application
+[36m|[m * [33m6ab754b[m refactor: convert catalog views from FBV to CBV
+[36m|[m[36m/[m  
+*   [33m3d59404[m Merge pull request #3 from SeetanaMarata/homework-3
+[1;32m|[m[1;33m\[m  
+[1;32m|[m * [33m61ffb08[m[33m ([m[1;31morigin/homework-3[m[33m)[m fix: secure sensitive data handling
+[1;32m|[m * [33m40364fa[m remove .env from repository
+[1;32m|[m * [33meb5e0be[m added README.md
+[1;32m|[m * [33mc0e38e6[m style: add custom CSS and design improvements
+[1;32m|[m * [33m25dcd9a[m feat: implement product creation form
+[1;32m|[m * [33m5d0ee1e[m refactor: implement template inheritance
+[1;32m|[m * [33m2ffee40[m feat: add product detail page and navigation
+[1;32m|[m * [33m44d402c[m feat: implement data models and admin
+[1;32m|[m * [33m31e13e8[m feat: add basic pages structure
+[1;32m|[m[1;32m/[m  
+*   [33m1f6da7f[m Merge pull request #2 from SeetanaMarata/homework-2
+[1;34m|[m[1;35m\[m  
+[1;34m|[m * [33m45deb3a[m[33m ([m[1;31morigin/homework-2[m[33m)[m added README.md
+[1;34m|[m * [33mb23928a[m feat: implement homepage with latest products
+[1;34m|[m * [33m3617e19[m feat: configure PostgreSQL database
+[1;34m|[m * [33mc781125[m feat: implement custom management commands
+[1;34m|[m * [33ma69998e[m feat: setup Django admin configuration
+[1;34m|[m * [33md430441[m feat: create Product and Category models
+[1;34m|[m[1;34m/[m  
+*   [33m27b664f[m Merge pull request #1 from SeetanaMarata/homework-1
+[1;36m|[m[31m\[m  
+[1;36m|[m * [33m6659917[m[33m ([m[1;31morigin/homework-1[m[33m)[m Remove .idea directory from repository
+[1;36m|[m * [33m3b15104[m style: clean up unused imports and add type annotations
+[1;36m|[m * [33me720982[m style: clean up unused imports and add type annotations
+[1;36m|[m[1;36m/[m  
+* [33mb3f62f2[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m feat: add catalog app with URLs and views
+* [33mf4b74f2[m feat: create Django project and basic configuration
+* [33m6328fea[m added Readme file
+* [33m68b0a51[m gitignore, pyproject.toml
