@@ -1,23 +1,39 @@
-from django.contrib import admin
+﻿from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import User
 
 
+# Регистрируем кастомного пользователя
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    """Админ-панель для кастомного пользователя"""
-
-    list_display = ("email", "first_name", "last_name", "is_staff", "is_active")
-    list_filter = ("is_staff", "is_active", "country")
-    search_fields = ("email", "first_name", "last_name", "phone")
+    list_display = (
+        "email",
+        "username",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_superuser",
+    )
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    search_fields = ("email", "username", "first_name", "last_name")
     ordering = ("email",)
 
+    # Поля при редактировании пользователя
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (
             "Personal info",
-            {"fields": ("first_name", "last_name", "avatar", "phone", "country")},
+            {
+                "fields": (
+                    "username",
+                    "first_name",
+                    "last_name",
+                    "avatar",
+                    "phone",
+                    "country",
+                )
+            },
         ),
         (
             "Permissions",
@@ -34,6 +50,7 @@ class CustomUserAdmin(UserAdmin):
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 
+    # Поля при добавлении пользователя
     add_fieldsets = (
         (
             None,
