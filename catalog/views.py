@@ -1,111 +1,188 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.views import View
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+    TemplateView,
+)
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import (CreateView, DeleteView, DetailView,
-                                  TemplateView, UpdateView)
+from django.core.paginator import Paginator
+from django.db.models import Q
 
+from .models import Product, Category, Contact
 from .forms import ProductForm
-from .models import Contact, Product
 
 
-# ========== ГЛАВНАЯ СТРАНИЦА (ФУНКЦИЯ!) ==========
+# Главная страница с пагинацией (FBV)
 def home(request):
     """Главная страница с товарами и пагинацией"""
-    # Получаем ВСЕ товары, сортируем по дате (новые сначала)
-    all_products = Product.objects.all().order_by("-created_at")
+    # Новая версия: для обычных пользователей - опубликованные,
+    # для модераторов и владельцев - все товары
+    if request.user.is_authenticated and (
+            request.user.has_perm("catalog.can_unpublish_product")
+            or request.user.is_superuser
+    ):
+        # Модераторы видят ВСЕ товары
+        products_list = Product.objects.all().order_by("-created_at")
+    else:
+        # Обычные пользователи видят только опубликованные
+        products_list = Product.objects.filter(is_published=True).order_by(
+            "-created_at"
+        )
 
-    # Создаем пагинатор: 6 товаров на страницу
-    paginator = Paginator(all_products, 6)
-
-    # Получаем номер страницы из GET-параметра
+    # Пагинация - 6 товаров на страницу
+    paginator = Paginator(products_list, 6)
     page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
-    try:
-        # Получаем объект страницы
-        page_obj = paginator.page(page_number)
-    except PageNotAnInteger:
-        # Если page не число, показываем первую страницу
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        # Если страница вне диапазона, показываем последнюю
-        page_obj = paginator.page(paginator.num_pages)
-
-    # Добавляем короткое описание для каждого товара
-    for product in page_obj:
-        if product.description and len(product.description) > 100:
-            product.short_description = product.description[:100] + "..."
-        else:
-            product.short_description = product.description or "Описание отсутствует"
-
-    # Подготавливаем контекст
-    context = {
-        "page_obj": page_obj,
-        "products": page_obj,  # дублируем для совместимости
-    }
-
-    return render(request, "catalog/home.html", context)
+    return render(
+        request,
+        "catalog/home.html",
+        {
+            "page_obj": page_obj,
+            "products": page_obj.object_list,
+        },
+    )
 
 
-# ========== СТРАНИЦА ТОВАРА (CBV) ==========
+# Страница контактов (CBV)
+class ContactsView(TemplateView):
+    template_name = "catalog/contacts.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем контактную информацию в контекст
+        contact_info = Contact.objects.first()
+        context["contact"] = contact_info
+        return context
+
+
+# Детальная страница товара (CBV)
 class ProductDetailView(DetailView):
-    """Страница одного товара"""
-
     model = Product
     template_name = "catalog/product_detail.html"
     context_object_name = "product"
 
 
-# ========== СТРАНИЦА КОНТАКТОВ (CBV) ==========
-class ContactsView(TemplateView):
-    """Страница контактов"""
-
-    template_name = "catalog/contacts.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["contact"] = Contact.objects.first()
-        return context
-
-
-# ========== СОЗДАНИЕ ТОВАРА (CBV) ==========
-class ProductCreateView(
-    LoginRequiredMixin, CreateView
-):  # 📍 LoginRequiredMixin ПЕРВЫЙ!
+# Создание товара (CBV)
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("home")
-    login_url = "/users/login/"  # 📍 Важно указать куда перенаправлять
+
+    def form_valid(self, form):
+        # Автоматически привязываем продукт к текущему пользователю
+        form.instance.owner = self.request.user
+        form.instance.is_published = False  # По умолчанию не опубликован
+        messages.success(self.request, "Товар успешно создан! Ожидает модерации.")
+        return super().form_valid(form)
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
+# Редактирование товара (CBV)
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "catalog/product_form.html"
-    login_url = "/users/login/"
+    success_url = reverse_lazy("home")
 
-    def get_success_url(self):
-        return reverse_lazy("product_detail", kwargs={"pk": self.object.pk})
+    def test_func(self):
+        """Проверяем, может ли пользователь редактировать продукт"""
+        product = self.get_object()
+        user = self.request.user
+
+        # 1. Владелец может редактировать свой продукт
+        # 2. Модератор может редактировать любой продукт
+        # 3. Суперпользователь может всё
+        return (
+                product.owner == user
+                or user.has_perm("catalog.can_unpublish_product")
+                or user.is_superuser
+        )
+
+    def form_valid(self, form):
+        messages.success(self.request, "Товар успешно обновлен!")
+        return super().form_valid(form)
 
 
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
+# Удаление товара (CBV)
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("home")
-    login_url = "/users/login/"
+
+    def test_func(self):
+        """Проверяем, может ли пользователь удалить продукт"""
+        product = self.get_object()
+        user = self.request.user
+
+        # 1. Владелец может удалить свой продукт
+        # 2. Модератор может удалить любой продукт
+        # 3. Суперпользователь может всё
+        return (
+                product.owner == user
+                or user.has_perm("catalog.delete_product")
+                or user.is_superuser
+        )
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Товар успешно удален!")
+        return super().delete(request, *args, **kwargs)
 
 
-# ========== ТЕСТОВАЯ СТРАНИЦА ПАГИНАЦИИ ==========
+# Публикация товара (только для модераторов)
+class ProductPublishView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Публикация продукта (только для модераторов)"""
+
+    def test_func(self):
+        """Проверяем, имеет ли пользователь право публиковать"""
+        return self.request.user.has_perm("catalog.can_unpublish_product")
+
+    def post(self, request, pk):
+        """Обрабатываем POST-запрос на публикацию"""
+        product = get_object_or_404(Product, pk=pk)
+        product.is_published = True
+        product.save()
+
+        messages.success(request, f'Продукт "{product.name}" опубликован')
+        return redirect("product_detail", pk=pk)
+
+
+# Отмена публикации товара (только для модераторов)
+class ProductUnpublishView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Отмена публикации продукта (только для модераторов)"""
+
+    def test_func(self):
+        """Проверяем, имеет ли пользователь право снимать с публикации"""
+        return self.request.user.has_perm("catalog.can_unpublish_product")
+
+    def post(self, request, pk):
+        """Обрабатываем POST-запрос на снятие с публикации"""
+        product = get_object_or_404(Product, pk=pk)
+        product.is_published = False
+        product.save()
+
+        messages.success(request, f'Продукт "{product.name}" снят с публикации')
+        return redirect("product_detail", pk=pk)
+
+
+# Тестовая страница пагинации (FBV)
 def test_pagination(request):
-    """Тестовая страница для отладки пагинации"""
-    all_products = Product.objects.all().order_by("-created_at")
-    paginator = Paginator(all_products, 6)
-    page_number = request.GET.get("page", 1)
+    """Тестовая страница для проверки пагинации"""
+    products_list = Product.objects.all().order_by("-created_at")
+    paginator = Paginator(products_list, 3)  # По 3 товара на страницу для теста
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
-    try:
-        page_obj = paginator.page(page_number)
-    except (PageNotAnInteger, EmptyPage):
-        page_obj = paginator.page(1)
-
-    return render(request, "catalog/test_pagination.html", {"page_obj": page_obj})
+    return render(
+        request,
+        "catalog/test_pagination.html",
+        {
+            "page_obj": page_obj,
+        },
+    )

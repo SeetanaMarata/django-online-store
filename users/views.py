@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, UpdateView
@@ -70,16 +70,20 @@ class UserLogoutView(LogoutView):
 
 
 class UserProfileView(LoginRequiredMixin, UpdateView):
-    """Редактирование профиля пользователя (дополнительное задание)"""
+    """Редактирование профиля пользователя"""
 
     model = User
     template_name = "users/profile.html"
     fields = ["first_name", "last_name", "avatar", "phone", "country"]
-    success_url = reverse_lazy("users:profile")
+    success_url = reverse_lazy(
+        "users:profile"
+    )  # Обратите внимание на namespace "users:"
 
     def get_object(self, queryset=None):
+        """Возвращаем текущего пользователя"""
         return self.request.user
 
     def form_valid(self, form):
+        """Добавляем сообщение об успехе"""
         messages.success(self.request, _("Profile updated successfully!"))
         return super().form_valid(form)

@@ -1,70 +1,91 @@
-{% extends 'catalog/base.html' %}
+﻿{% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{{ product.name }} - Интернет-магазин{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
-        <li class="breadcrumb-item active">{{ product.name }}</li>
-    </ol>
-</nav>
-
 <div class="row">
     <div class="col-md-6">
         {% if product.image %}
             <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
         {% else %}
-            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
-                <span class="text-muted">Изображение отсутствует</span>
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                <span class="text-muted">Нет изображения</span>
             </div>
         {% endif %}
     </div>
+    
     <div class="col-md-6">
-        <h1 class="display-5">{{ product.name }}</h1>
+        <h1>{{ product.name }}</h1>
         
-        {% if product.category %}
-            <p class="text-muted">Категория: {{ product.category.name }}</p>
-        {% endif %}
-        
-        <h3 class="text-primary mb-3">{{ product.price }} руб.</h3>
-        
-        <div class="mb-4">
-            <h5>Описание:</h5>
-            <p class="lead">{{ product.description|default:"Описание отсутствует" }}</p>
+        <div class="mb-3">
+            <span class="badge bg-primary fs-6">{{ product.price }} руб.</span>
+            {% if product.is_published %}
+                <span class="badge bg-success">✅ Опубликован</span>
+            {% else %}
+                <span class="badge bg-warning">⏳ На модерации</span>
+            {% endif %}
         </div>
         
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-body">
-                <h6 class="card-title">Информация о товаре</h6>
-                <p class="card-text mb-1">
-                    <small class="text-muted">Добавлен: {{ product.created_at|date:"d.m.Y" }}</small>
-                </p>
-                {% if product.updated_at != product.created_at %}
-                    <p class="card-text">
-                        <small class="text-muted">Обновлен: {{ product.updated_at|date:"d.m.Y" }}</small>
-                    </p>
+                <h5 class="card-title">Описание</h5>
+                <p class="card-text">{{ product.description|linebreaks }}</p>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Информация о товаре</h5>
+                <p><strong>Категория:</strong> {{ product.category.name|default:"Не указана" }}</p>
+                <p><strong>Добавлен:</strong> {{ product.created_at|date:"d.m.Y H:i" }}</p>
+                {% if product.owner %}
+                    <p><strong>Владелец:</strong> {{ product.owner.email }}</p>
                 {% endif %}
             </div>
         </div>
         
-        <!-- БЛОК КНОПОК -->
-        <div class="mt-4">
-            <div class="btn-group w-100" role="group">
-                {% if user.is_authenticated and user.is_staff %}
-                    <a href="{% url 'product_edit' product.pk %}" class="btn btn-warning">
-                        ✏️ Редактировать
+        <!-- Кнопки действий -->
+        <div class="btn-group" role="group">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+            
+            {% if user.is_authenticated %}
+                <!-- Владелец или модератор могут редактировать -->
+                {% if product.owner == user or perms.catalog.can_unpublish_product or user.is_superuser %}
+                    <a href="{% url 'product_edit' product.pk %}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Редактировать
                     </a>
-                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">
-                        🗑️ Удалить
-                    </a>
-                {% else %}
-                    <button class="btn btn-primary">🛒 Добавить в корзину</button>
                 {% endif %}
-                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
-                    ← Назад
-                </a>
-            </div>
+                
+                <!-- Владелец или модератор могут удалять -->
+                {% if product.owner == user or perms.catalog.delete_product or user.is_superuser %}
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </a>
+                {% endif %}
+                
+                <!-- КНОПКА ПУБЛИКАЦИИ: только для модераторов, если товар не опубликован -->
+                {% if perms.catalog.can_unpublish_product and not product.is_published %}
+                    <form method="post" action="{% url 'product_publish' product.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Опубликовать
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <!-- КНОПКА СНЯТИЯ С ПУБЛИКАЦИИ: только для модераторов, если товар опубликован -->
+                {% if perms.catalog.can_unpublish_product and product.is_published %}
+                    <form method="post" action="{% url 'product_unpublish' product.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-eye-slash"></i> Снять с публикации
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 </div>
