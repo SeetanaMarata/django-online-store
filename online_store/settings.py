@@ -162,5 +162,33 @@ STATICFILES_DIRS = [
 # ========== ЛОКАЛИЗАЦИЯ ==========
 LANGUAGE_CODE = "ru-ru"  # или 'en-us'
 TIME_ZONE = "Europe/Moscow"
+
+# ========== КЕШИРОВАНИЕ С REDIS ==========
+# Включаем кеширование из переменной окружения
+CACHE_ENABLED = True  # Включим кеширование
+
+if CACHE_ENABLED:
+    # Используем локальный кеш в памяти (не требует Redis)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'django-shop-cache',
+            'TIMEOUT': 300,  # 5 минут
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000
+            }
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+
+CACHE_TTL = 60 * 15
+
+# Для отладки кеширования можно добавить
+# CACHES['default']['TIMEOUT'] = CACHE_TTL
 USE_I18N = True
 USE_TZ = True

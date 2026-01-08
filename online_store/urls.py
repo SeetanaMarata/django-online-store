@@ -1,13 +1,13 @@
+from django.contrib import admin
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
-from django.urls import include, path
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("catalog.urls")),
-    path("blog/", include("blog.urls")),
-    path("users/", include("users.urls")),
+    path('admin/', admin.site.urls),
+    path('', include('catalog.urls')),  # главные маршруты
+    path('users/', include('users.urls')),  # пользователи с пространством имен
+    path('blog/', include('blog.urls')),  # блог если есть
 ]
 
 if settings.DEBUG:
