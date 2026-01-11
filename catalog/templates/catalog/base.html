@@ -29,7 +29,6 @@
     <small class="text-muted">
         {% if request.user.is_staff %}
             <!-- Для админов показываем статус кеша -->
-            {% load cache_info %}
             Кеш: {% if CACHE_ENABLED %}🟢 Включен{% else %}🔴 Выключен{% endif %}
         {% else %}
             &copy; 2024 Магазин. Все права защищены.

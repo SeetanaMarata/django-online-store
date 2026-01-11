@@ -5,16 +5,31 @@
             <div class="col-md-6">
                 <h5>🛍️ Интернет-магазин</h5>
                 <p class="mb-0">Лучшие товары по выгодным ценам</p>
+                <p class="mb-0 small text-light">
+                    <i class="bi bi-lightning-charge"></i> Ускорено с Redis
+                </p>
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="mb-0">&copy; 2024 Интернет-магазин. Все права защищены.</p>
                 <p class="mb-0">Телефон: +7 (999) 999-99-99</p>
+
                 {% if user.is_staff or user.is_superuser %}
-                <p class="mb-0 mt-2">
-                    <small class="text-light">
-                        🚀 Кеш: {% if cache_enabled %}🟢 Включен ({{ cache_ttl }} сек){% else %}🔴 Выключен{% endif %}
+                <div class="mt-2 p-2 bg-secondary rounded">
+                    <small>
+                        <strong>🛠️ Системная информация:</strong><br>
+                        🚀 Кеш:
+                        {% if cache_enabled %}
+                            {% if CACHES.default.BACKEND == 'django_redis.cache.RedisCache' %}
+                                <span class="text-success">🟢 Redis</span>
+                                (TTL: {{ cache_ttl }} сек)
+                            {% else %}
+                                <span class="text-warning">🟡 {{ CACHES.default.BACKEND|default:"Local" }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-danger">🔴 Выключен</span>
+                        {% endif %}
                     </small>
-                </p>
+                </div>
                 {% endif %}
             </div>
         </div>

@@ -170,19 +170,17 @@ CACHE_ENABLED = True  # Включим кеширование
 if CACHE_ENABLED:
     # Используем локальный кеш в памяти (не требует Redis)
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'django-shop-cache',
-            'TIMEOUT': 300,  # 5 минут
-            'OPTIONS': {
-                'MAX_ENTRIES': 1000
-            }
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "django-shop-cache",
+            "TIMEOUT": 300,  # 5 минут
+            "OPTIONS": {"MAX_ENTRIES": 1000},
         }
     }
 else:
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
         }
     }
 
@@ -192,3 +190,42 @@ CACHE_TTL = 60 * 15
 # CACHES['default']['TIMEOUT'] = CACHE_TTL
 USE_I18N = True
 USE_TZ = True
+
+# ========== REDIS КЕШИРОВАНИЕ ==========
+import os
+
+# Redis настройки
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")  # или '127.0.0.1'
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_DB = os.getenv("REDIS_DB", 0)  # Измени на 0 вместо 1
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
+
+# URL для подключения
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+
+# Включаем кеширование
+CACHE_ENABLED = os.getenv("CACHE_ENABLED", "True") == "True"
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                # Для Windows часто нужны эти настройки:
+                "IGNORE_EXCEPTIONS": True,
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+            },
+            "KEY_PREFIX": "django_shop",
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+
+CACHE_TTL = 60 * 15  # 15 минут

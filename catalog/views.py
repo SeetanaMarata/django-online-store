@@ -1,29 +1,20 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.views import View
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    TemplateView,
-)
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
-from django.core.paginator import Paginator
-from django.core.cache import cache
 from django.conf import settings
-from django.views.decorators.cache import cache_page
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.cache import cache
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.cache import cache_page
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  TemplateView, UpdateView)
 
-from .models import Product, Category, Contact
 from .forms import ProductForm
-from .services import (
-    get_products_by_category,
-    get_all_published_products,
-    get_all_products_for_moderators
-)
+from .models import Category, Contact, Product
+from .services import (get_all_products_for_moderators,
+                       get_all_published_products, get_products_by_category)
 
 
 # Главная страница с пагинацией и кешированием
@@ -39,8 +30,8 @@ def home(request):
     # Новая версия: для обычных пользователей - опубликованные,
     # для модераторов и владельцев - все товары
     if request.user.is_authenticated and (
-            request.user.has_perm("catalog.can_unpublish_product")
-            or request.user.is_superuser
+        request.user.has_perm("catalog.can_unpublish_product")
+        or request.user.is_superuser
     ):
         # Модераторы видят ВСЕ товары
         products_list = get_all_products_for_moderators()
@@ -90,10 +81,10 @@ class ProductDetailView(DetailView):
 
         # Проверка прав на редактирование
         user = self.request.user
-        context['can_edit'] = (
-                user == product.owner or
-                user.groups.filter(name='Модератор продуктов').exists() or
-                user.is_superuser
+        context["can_edit"] = (
+            user == product.owner
+            or user.groups.filter(name="Модератор продуктов").exists()
+            or user.is_superuser
         )
 
         return context
@@ -106,13 +97,13 @@ class CategoryProductsView(ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        category_slug = self.kwargs['slug']
+        category_slug = self.kwargs["slug"]
         return get_products_by_category(category_slug)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category_slug = self.kwargs['slug']
-        context['category'] = get_object_or_404(Category, slug=category_slug)
+        category_slug = self.kwargs["slug"]
+        context["category"] = get_object_or_404(Category, slug=category_slug)
         return context
 
 
@@ -141,9 +132,9 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
         # Очищаем кеш при создании нового продукта
         if settings.CACHE_ENABLED:
-            cache.delete('all_published_products')
-            cache.delete('all_products_moderators')
-            cache.delete_pattern('*home_page*')
+            cache.delete("all_published_products")
+            cache.delete("all_products_moderators")
+            cache.delete_pattern("*home_page*")
 
         return super().form_valid(form)
 
@@ -159,9 +150,9 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         product = self.get_object()
         user = self.request.user
         return (
-                product.owner == user
-                or user.has_perm("catalog.can_unpublish_product")
-                or user.is_superuser
+            product.owner == user
+            or user.has_perm("catalog.can_unpublish_product")
+            or user.is_superuser
         )
 
     def form_valid(self, form):
@@ -170,11 +161,11 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Очищаем кеш при обновлении продукта
         if settings.CACHE_ENABLED:
             product = self.get_object()
-            cache.delete(f'products_category_{product.category.slug}')
-            cache.delete('all_published_products')
-            cache.delete('all_products_moderators')
-            cache.delete_pattern(f'*product_detail_{product.id}*')
-            cache.delete_pattern('*home_page*')
+            cache.delete(f"products_category_{product.category.slug}")
+            cache.delete("all_published_products")
+            cache.delete("all_products_moderators")
+            cache.delete_pattern(f"*product_detail_{product.id}*")
+            cache.delete_pattern("*home_page*")
 
         return super().form_valid(form)
 
@@ -189,9 +180,9 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         product = self.get_object()
         user = self.request.user
         return (
-                product.owner == user
-                or user.has_perm("catalog.delete_product")
-                or user.is_superuser
+            product.owner == user
+            or user.has_perm("catalog.delete_product")
+            or user.is_superuser
         )
 
     def delete(self, request, *args, **kwargs):
@@ -200,11 +191,11 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
         # Очищаем кеш перед удалением
         if settings.CACHE_ENABLED and category_slug:
-            cache.delete(f'products_category_{category_slug}')
-            cache.delete('all_published_products')
-            cache.delete('all_products_moderators')
-            cache.delete_pattern(f'*product_detail_{product.id}*')
-            cache.delete_pattern('*home_page*')
+            cache.delete(f"products_category_{category_slug}")
+            cache.delete("all_published_products")
+            cache.delete("all_products_moderators")
+            cache.delete_pattern(f"*product_detail_{product.id}*")
+            cache.delete_pattern("*home_page*")
 
         messages.success(request, "Товар успешно удален!")
         return super().delete(request, *args, **kwargs)
@@ -225,11 +216,11 @@ class ProductPublishView(LoginRequiredMixin, UserPassesTestMixin, View):
         # Очищаем кеш
         if settings.CACHE_ENABLED:
             if product.category:
-                cache.delete(f'products_category_{product.category.slug}')
-            cache.delete('all_published_products')
-            cache.delete('all_products_moderators')
-            cache.delete_pattern(f'*product_detail_{product.id}*')
-            cache.delete_pattern('*home_page*')
+                cache.delete(f"products_category_{product.category.slug}")
+            cache.delete("all_published_products")
+            cache.delete("all_products_moderators")
+            cache.delete_pattern(f"*product_detail_{product.id}*")
+            cache.delete_pattern("*home_page*")
 
         messages.success(request, f'Продукт "{product.name}" опубликован')
         return redirect("product_detail", pk=pk)
@@ -250,11 +241,11 @@ class ProductUnpublishView(LoginRequiredMixin, UserPassesTestMixin, View):
         # Очищаем кеш
         if settings.CACHE_ENABLED:
             if product.category:
-                cache.delete(f'products_category_{product.category.slug}')
-            cache.delete('all_published_products')
-            cache.delete('all_products_moderators')
-            cache.delete_pattern(f'*product_detail_{product.id}*')
-            cache.delete_pattern('*home_page*')
+                cache.delete(f"products_category_{product.category.slug}")
+            cache.delete("all_published_products")
+            cache.delete("all_products_moderators")
+            cache.delete_pattern(f"*product_detail_{product.id}*")
+            cache.delete_pattern("*home_page*")
 
         messages.success(request, f'Продукт "{product.name}" снят с публикации')
         return redirect("product_detail", pk=pk)
@@ -284,29 +275,29 @@ from django.shortcuts import render
 @staff_member_required
 def cache_stats(request):
     """Страница статистики кеша (только для staff)"""
-    from django.core.cache import cache
     from django.conf import settings
+    from django.core.cache import cache
 
     stats = {
-        'cache_enabled': settings.CACHE_ENABLED,
-        'cache_ttl': settings.CACHE_TTL,
-        'cache_backend': settings.CACHES['default']['BACKEND'],
-        'cache_timeout': settings.CACHES['default'].get('TIMEOUT', 'по умолчанию'),
+        "cache_enabled": settings.CACHE_ENABLED,
+        "cache_ttl": settings.CACHE_TTL,
+        "cache_backend": settings.CACHES["default"]["BACKEND"],
+        "cache_timeout": settings.CACHES["default"].get("TIMEOUT", "по умолчанию"),
     }
 
     # Попробуем получить размер кеша
     try:
-        if hasattr(cache, '_cache'):
-            if hasattr(cache._cache, '_cache'):
-                stats['cache_size'] = len(cache._cache._cache)
+        if hasattr(cache, "_cache"):
+            if hasattr(cache._cache, "_cache"):
+                stats["cache_size"] = len(cache._cache._cache)
             else:
-                stats['cache_size'] = 'не удалось определить'
+                stats["cache_size"] = "не удалось определить"
     except:
-        stats['cache_size'] = 'ошибка при определении'
+        stats["cache_size"] = "ошибка при определении"
 
     # Тест работы кеша
-    test_key = 'cache_stats_test'
-    cache.set(test_key, 'test_value', 10)
-    stats['cache_test'] = cache.get(test_key) == 'test_value'
+    test_key = "cache_stats_test"
+    cache.set(test_key, "test_value", 10)
+    stats["cache_test"] = cache.get(test_key) == "test_value"
 
-    return render(request, 'catalog/cache_stats.html', {'stats': stats})
+    return render(request, "catalog/cache_stats.html", {"stats": stats})

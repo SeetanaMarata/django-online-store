@@ -1,4 +1,5 @@
 import time
+
 import requests
 
 print("Тест кеширования страницы продукта...")

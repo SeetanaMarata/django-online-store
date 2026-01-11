@@ -1,10 +1,10 @@
 # catalog/models.py
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from django.core.cache import cache
 from django.utils.text import slugify
 
 
@@ -33,6 +33,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     """Модель продукта"""
+
     name = models.CharField(max_length=100, verbose_name="Наименование")
     description = models.TextField(verbose_name="Описание", blank=True, null=True)
     image = models.ImageField(
@@ -82,6 +83,7 @@ class Product(models.Model):
 
 class Contact(models.Model):
     """Модель контактных данных магазина"""
+
     name = models.CharField(max_length=100, verbose_name="Название магазина")
     phone = models.CharField(max_length=20, verbose_name="Телефон")
     email = models.EmailField(verbose_name="Email")
@@ -99,6 +101,7 @@ class Contact(models.Model):
 
 # ========== СИГНАЛЫ ДЛЯ ОЧИСТКИ КЕША ==========
 
+
 @receiver([post_save, post_delete], sender=Product)
 def clear_product_cache(sender, instance, **kwargs):
     """Очищаем кеш при изменении продуктов"""
@@ -106,18 +109,18 @@ def clear_product_cache(sender, instance, **kwargs):
 
     if settings.CACHE_ENABLED:
         # Очищаем кеши списков продуктов
-        cache.delete('all_published_products')
-        cache.delete('all_products_moderators')
+        cache.delete("all_published_products")
+        cache.delete("all_products_moderators")
 
         # Очищаем кеш категории, если продукт имеет категорию
         if instance.category:
-            cache.delete(f'products_category_{instance.category.slug}')
+            cache.delete(f"products_category_{instance.category.slug}")
 
         # Очищаем кеш детальной страницы продукта
-        cache.delete_pattern(f'*product_detail_{instance.id}*')
+        cache.delete_pattern(f"*product_detail_{instance.id}*")
 
         # Очищаем кеш главной страницы
-        cache.delete_pattern('*home_page*')
+        cache.delete_pattern("*home_page*")
 
 
 @receiver([post_save, post_delete], sender=Category)
@@ -126,6 +129,6 @@ def clear_category_cache(sender, instance, **kwargs):
     from django.conf import settings
 
     if settings.CACHE_ENABLED:
-        cache.delete(f'products_category_{instance.slug}')
-        cache.delete('all_published_products')
-        cache.delete('all_products_moderators')
+        cache.delete(f"products_category_{instance.slug}")
+        cache.delete("all_published_products")
+        cache.delete("all_products_moderators")

@@ -1,8 +1,9 @@
-import time
-import django
 import os
+import time
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'online_store.settings')
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "online_store.settings")
 django.setup()
 
 from catalog.services import get_all_published_products
