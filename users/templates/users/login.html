@@ -1,6 +1,6 @@
-{% extends 'catalog/base.html' %}
+{% extends 'base.html' %}  <!-- ИЗМЕНИТЬ: было catalog/base.html -->
 
-{% block title %}Login - Online Store{% endblock %}
+{% block title %}Вход - Online Store{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,12 +8,12 @@
         <div class="col-md-6">
             <div class="card shadow-lg">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Welcome Back! 🔐</h4>
+                    <h4 class="mb-0">Добро пожаловать! 🔐</h4>
                 </div>
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {% for error in form.non_field_errors %}
@@ -21,10 +21,10 @@
                             {% endfor %}
                         </div>
                         {% endif %}
-                        
+
                         <!-- Email -->
                         <div class="mb-3">
-                            <label class="form-label">Email address *</label>
+                            <label class="form-label">Email *</label>
                             {{ form.username }}
                             {% if form.username.errors %}
                             <div class="text-danger small">
@@ -34,10 +34,10 @@
                             </div>
                             {% endif %}
                         </div>
-                        
+
                         <!-- Password -->
                         <div class="mb-4">
-                            <label class="form-label">Password *</label>
+                            <label class="form-label">Пароль *</label>
                             {{ form.password }}
                             {% if form.password.errors %}
                             <div class="text-danger small">
@@ -49,28 +49,28 @@
                             <div class="text-end">
                                 <small>
                                     <a href="#" class="text-decoration-none">
-                                        Forgot password?
+                                        Забыли пароль?
                                     </a>
                                 </small>
                             </div>
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                Log In →
+                                Войти →
                             </button>
                             <a href="{% url 'users:register' %}" class="btn btn-outline-success">
-                                New user? Create an account
+                                Нет аккаунта? Зарегистрироваться
                             </a>
                             <a href="{% url 'home' %}" class="btn btn-link">
-                                ← Back to home
+                                ← На главную
                             </a>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer text-center">
                     <small class="text-muted">
-                        Demo credentials: test@example.com / testpass123
+                        Тестовые данные: test@example.com / testpass123
                     </small>
                 </div>
             </div>
@@ -83,12 +83,12 @@
         border-radius: 10px;
         padding: 12px 15px;
     }
-    
+
     .card {
         border-radius: 15px;
         border: none;
     }
-    
+
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;

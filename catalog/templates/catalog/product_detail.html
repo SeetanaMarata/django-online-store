@@ -37,20 +37,26 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Информация о товаре</h5>
-                <p><strong>Категория:</strong> {{ product.category.name|default:"Не указана" }}</p>
+                <p><strong>Категория:</strong>
+                    {% if product.category %}
+                        <a href="{% url 'category_products' product.category.slug %}">{{ product.category.name }}</a>
+                    {% else %}
+                        Не указана
+                    {% endif %}
+                </p>
                 <p><strong>Добавлен:</strong> {{ product.created_at|date:"d.m.Y H:i" }}</p>
                 {% if product.owner %}
                     <p><strong>Владелец:</strong> {{ product.owner.email }}</p>
                 {% endif %}
             </div>
         </div>
-        
+
         <!-- Кнопки действий -->
         <div class="btn-group" role="group">
             <a href="{% url 'home' %}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Назад
             </a>
-            
+
             {% if user.is_authenticated %}
                 <!-- Владелец или модератор могут редактировать -->
                 {% if product.owner == user or perms.catalog.can_unpublish_product or user.is_superuser %}
@@ -58,14 +64,14 @@
                         <i class="bi bi-pencil"></i> Редактировать
                     </a>
                 {% endif %}
-                
+
                 <!-- Владелец или модератор могут удалять -->
                 {% if product.owner == user or perms.catalog.delete_product or user.is_superuser %}
                     <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">
                         <i class="bi bi-trash"></i> Удалить
                     </a>
                 {% endif %}
-                
+
                 <!-- КНОПКА ПУБЛИКАЦИИ: только для модераторов, если товар не опубликован -->
                 {% if perms.catalog.can_unpublish_product and not product.is_published %}
                     <form method="post" action="{% url 'product_publish' product.pk %}" class="d-inline">
@@ -75,7 +81,7 @@
                         </button>
                     </form>
                 {% endif %}
-                
+
                 <!-- КНОПКА СНЯТИЯ С ПУБЛИКАЦИИ: только для модераторов, если товар опубликован -->
                 {% if perms.catalog.can_unpublish_product and product.is_published %}
                     <form method="post" action="{% url 'product_unpublish' product.pk %}" class="d-inline">

@@ -1,6 +1,6 @@
-{% extends 'catalog/base.html' %}
+{% extends 'base.html' %}  <!-- ИЗМЕНИТЬ: было catalog/base.html -->
 
-{% block title %}Registration - Online Store{% endblock %}
+{% block title %}Регистрация - Online Store{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,12 +8,12 @@
         <div class="col-md-6">
             <div class="card shadow-lg">
                 <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Create an Account 📝</h4>
+                    <h4 class="mb-0">Создать аккаунт 📝</h4>
                 </div>
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {% for error in form.non_field_errors %}
@@ -21,10 +21,10 @@
                             {% endfor %}
                         </div>
                         {% endif %}
-                        
+
                         <!-- Email -->
                         <div class="mb-3">
-                            <label class="form-label">Email address *</label>
+                            <label class="form-label">Email *</label>
                             {{ form.email }}
                             {% if form.email.errors %}
                             <div class="text-danger small">
@@ -34,13 +34,13 @@
                             </div>
                             {% endif %}
                             <div class="form-text">
-                                We will use this email for authorization and notifications
+                                Будем использовать этот email для входа и уведомлений
                             </div>
                         </div>
-                        
+
                         <!-- Password -->
                         <div class="mb-3">
-                            <label class="form-label">Password *</label>
+                            <label class="form-label">Пароль *</label>
                             {{ form.password1 }}
                             {% if form.password1.errors %}
                             <div class="text-danger small">
@@ -50,13 +50,13 @@
                             </div>
                             {% endif %}
                             <div class="form-text">
-                                Minimum 8 characters, include letters and numbers
+                                Минимум 8 символов, должны быть буквы и цифры
                             </div>
                         </div>
-                        
+
                         <!-- Confirm Password -->
                         <div class="mb-4">
-                            <label class="form-label">Confirm Password *</label>
+                            <label class="form-label">Подтвердите пароль *</label>
                             {{ form.password2 }}
                             {% if form.password2.errors %}
                             <div class="text-danger small">
@@ -66,23 +66,23 @@
                             </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">
-                                Register ✅
+                                Зарегистрироваться ✅
                             </button>
                             <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">
-                                Already have an account? Log in
+                                Уже есть аккаунт? Войти
                             </a>
                             <a href="{% url 'home' %}" class="btn btn-link">
-                                ← Back to home
+                                ← На главную
                             </a>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer text-center">
                     <small class="text-muted">
-                        By registering, you agree to our Terms of Service and Privacy Policy
+                        Регистрируясь, вы соглашаетесь с Условиями использования и Политикой конфиденциальности
                     </small>
                 </div>
             </div>

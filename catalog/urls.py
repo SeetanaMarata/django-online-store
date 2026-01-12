@@ -3,10 +3,16 @@
 from . import views
 
 urlpatterns = [
-    # Главная страница - используем ФУНКЦИЮ views.home
+    # Главная страница
     path("", views.home, name="home"),
     # Контакты
     path("contacts/", views.ContactsView.as_view(), name="contacts"),
+    # Товары по категории
+    path(
+        "category/<slug:slug>/",
+        views.CategoryProductsView.as_view(),
+        name="category_products",
+    ),
     # Товары - CRUD
     path("product/<int:pk>/", views.ProductDetailView.as_view(), name="product_detail"),
     path("product/create/", views.ProductCreateView.as_view(), name="product_create"),
@@ -32,4 +38,6 @@ urlpatterns = [
     ),
     # Тестовая страница пагинации
     path("test-pagination/", views.test_pagination, name="test_pagination"),
+    # Статистика кеша (НОВАЯ СТРОЧКА)
+    path("cache-stats/", views.cache_stats, name="cache_stats"),
 ]

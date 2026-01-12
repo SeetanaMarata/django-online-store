@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика кеширования{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item active">Статистика кеша</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-4">📊 Статистика кеширования</h1>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Основная информация</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <th width="30%">Статус кеширования</th>
+                                <td>
+                                    {% if stats.cache_enabled %}
+                                        <span class="badge bg-success">🟢 Включено</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">🔴 Выключено</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Время жизни кеша</th>
+                                <td>{{ stats.cache_ttl }} секунд ({{ stats.cache_ttl|divisibleby:60|yesno:"минут,секунд" }})</td>
+                            </tr>
+                            <tr>
+                                <th>Бэкенд кеша</th>
+                                <td><code>{{ stats.cache_backend }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Таймаут</th>
+                                <td>{{ stats.cache_timeout }}</td>
+                            </tr>
+                            <tr>
+                                <th>Размер кеша</th>
+                                <td>
+                                    {% if stats.cache_size %}
+                                        {{ stats.cache_size }} записей
+                                    {% else %}
+                                        <span class="text-muted">не определен</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Тест работы кеша</th>
+                                <td>
+                                    {% if stats.cache_test %}
+                                        <span class="badge bg-success">✅ Работает</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">❌ Не работает</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            ← На главную
+                        </a>
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">
+                            📊 Админка
+                        </a>
+                        {% if stats.cache_enabled %}
+                        <form method="post" action="{% url 'clear_cache' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Очистить весь кеш?')">
+                                🧹 Очистить кеш
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-4">
+                <h6>💡 Примечания:</h6>
+                <ul class="mb-0">
+                    <li>Эта страница доступна только администраторам</li>
+                    <li>Данные обновляются при каждом обновлении страницы</li>
+                    <li>Кеширование ускоряет работу сайта в 10-20 раз</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

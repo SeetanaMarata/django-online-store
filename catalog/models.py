@@ -1,12 +1,21 @@
+# catalog/models.py
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+from django.utils.text import slugify
 
 
 class Category(models.Model):
-    """Модель категории товаров"""
-
     name = models.CharField(max_length=100, verbose_name="Наименование")
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        verbose_name="URL-имя",
+        help_text="Человекочитаемый URL (автозаполнение)",
+    )
     description = models.TextField(verbose_name="Описание", blank=True, null=True)
 
     class Meta:
@@ -15,6 +24,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -44,7 +58,6 @@ class Product(models.Model):
         verbose_name="Опубликован",
         help_text="Товар будет виден на сайте только если отмечен",
     )
-
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Ссылаемся на кастомную модель пользователя
         on_delete=models.SET_NULL,
@@ -58,7 +71,6 @@ class Product(models.Model):
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
         ordering = ["-created_at"]
-        # ДОБАВЬТЕ разрешения:
         permissions = [
             ("can_unpublish_product", "Может отменять публикацию продукта"),
             ("can_change_description", "Может изменять описание продукта"),
@@ -85,3 +97,38 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# ========== СИГНАЛЫ ДЛЯ ОЧИСТКИ КЕША ==========
+
+
+@receiver([post_save, post_delete], sender=Product)
+def clear_product_cache(sender, instance, **kwargs):
+    """Очищаем кеш при изменении продуктов"""
+    from django.conf import settings
+
+    if settings.CACHE_ENABLED:
+        # Очищаем кеши списков продуктов
+        cache.delete("all_published_products")
+        cache.delete("all_products_moderators")
+
+        # Очищаем кеш категории, если продукт имеет категорию
+        if instance.category:
+            cache.delete(f"products_category_{instance.category.slug}")
+
+        # Очищаем кеш детальной страницы продукта
+        cache.delete_pattern(f"*product_detail_{instance.id}*")
+
+        # Очищаем кеш главной страницы
+        cache.delete_pattern("*home_page*")
+
+
+@receiver([post_save, post_delete], sender=Category)
+def clear_category_cache(sender, instance, **kwargs):
+    """Очищаем кеш при изменении категорий"""
+    from django.conf import settings
+
+    if settings.CACHE_ENABLED:
+        cache.delete(f"products_category_{instance.slug}")
+        cache.delete("all_published_products")
+        cache.delete("all_products_moderators")

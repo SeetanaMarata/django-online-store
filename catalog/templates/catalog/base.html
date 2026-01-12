@@ -24,3 +24,14 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+<!-- В подвале -->
+<footer class="mt-5 py-3 bg-light text-center">
+    <small class="text-muted">
+        {% if request.user.is_staff %}
+            <!-- Для админов показываем статус кеша -->
+            Кеш: {% if CACHE_ENABLED %}🟢 Включен{% else %}🔴 Выключен{% endif %}
+        {% else %}
+            &copy; 2024 Магазин. Все права защищены.
+        {% endif %}
+    </small>
+</footer>
